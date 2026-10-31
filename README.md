@@ -27,11 +27,10 @@ json_rest_server run                    # se não achar o comando, veja o PATH d
 **2. Front**
 
 ```bash
+cp .env.example .env     # URL da API (VITE_API_URL); o .env fica fora do Git
 npm install
 npm run dev
 ```
-
-A URL da API está em `.env` (`VITE_API_URL`).
 
 ## Contas de teste
 
