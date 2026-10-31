@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router"
 import { ticketService } from "../services/ticketService"
 import { Header } from "../components/Header"
 import { Segmented } from "../components/Segmented"
+import { PriorityBars } from "../components/TicketBadges"
 import { TicketCard } from "../components/TicketCard"
 import { alertClass, fieldClass, inputClass, labelClass, primaryButtonClass, secondaryButtonClass } from "../components/formStyles"
 
@@ -109,9 +110,9 @@ export function NewTicketPage(){
                         value={priority}
                         onChange={setPriority}
                         options={[
-                            { value: "Baixa", label: "Baixa" },
-                            { value: "Media", label: "Média" },
-                            { value: "Alta", label: "Alta" },
+                            { value: "Baixa", label: "Baixa", icon: <PriorityBars priority="Baixa" /> },
+                            { value: "Media", label: "Média", icon: <PriorityBars priority="Media" /> },
+                            { value: "Alta", label: "Alta", icon: <PriorityBars priority="Alta" /> },
                         ]}
                     />
 
