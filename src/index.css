@@ -1,0 +1,187 @@
+@import "tailwindcss";
+
+/* modo escuro por classe no <html> (controlado pelo botao de tema), nao so pela preferencia do sistema */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* tokens semanticos: os componentes dizem "superficie", "texto", "linha"; o tema decide a cor (ver .dark abaixo) */
+  --color-page: #f8fafc;
+  --color-surface: #ffffff;
+  --color-ink: #0f172a;
+  --color-ink-2: #334155;
+  --color-muted: #475569;
+  --color-subtle: #64748b;
+  --color-faint: #94a3b8;
+  --color-line-soft: #f1f5f9;
+  --color-line: #e2e8f0;
+  --color-line-strong: #cbd5e1;
+  --color-line-hover: #94a3b8;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  --animate-rise: rise 700ms var(--ease-out) both;
+  --animate-pop: pop 260ms var(--ease-out) both;
+  --animate-grow: grow 500ms var(--ease-out) both;
+  --animate-fade: fade 150ms var(--ease-out) both;
+  --animate-enter: enter 300ms var(--ease-out) both;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes enter {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes grow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.6); }
+    to { opacity: 1; transform: scale(1); }
+  }
+}
+
+.dark {
+  color-scheme: dark;
+  --color-page: #070b16;
+  --color-surface: #0e1424;
+  --color-ink: #f1f5f9;
+  --color-ink-2: #e2e8f0;
+  --color-muted: #cbd5e1;
+  --color-subtle: #94a3b8;
+  --color-faint: #64748b;
+  --color-line-soft: rgb(255 255 255 / 0.06);
+  --color-line: rgb(255 255 255 / 0.1);
+  --color-line-strong: rgb(255 255 255 / 0.17);
+  --color-line-hover: rgb(255 255 255 / 0.3);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-page);
+    color: var(--color-ink);
+  }
+
+  /* foco visivel padrao para links e botoes; os campos usam o anel proprio (formStyles) */
+  :focus-visible {
+    outline: 2px solid var(--color-blue-600);
+    outline-offset: 2px;
+  }
+}
+
+/* popup de confirmacao (<dialog>): modal no centro, entra com escala + opacidade e sai pelo mesmo caminho */
+.confirm-dialog[open] {
+  animation: dialog-in 220ms var(--ease-out) both;
+}
+
+.confirm-dialog[open]::backdrop {
+  background-color: rgb(2 6 23 / 0.35);
+  /* desfoque leve so na tela de tras: separa a acao destrutiva do resto sem esconder o contexto */
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  animation: fade 220ms var(--ease-out) both;
+}
+
+.confirm-dialog[data-closing] {
+  animation: dialog-out 150ms var(--ease-out) both;
+}
+
+.confirm-dialog[data-closing]::backdrop {
+  animation: fade-out 150ms var(--ease-out) both;
+}
+
+@keyframes dialog-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes dialog-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.96); }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/*
+ * Troca de tema como movimento. Com View Transitions, o navegador congela a tela antiga (old) e revela a nova (new);
+ * o ThemeToggle anima o clip-path da "new" em circulo a partir do botao. As animacoes padrao (cross-fade) saem.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+
+/* fallback sem View Transitions: cores do app todo transitam por 500ms enquanto a classe esta no <html> */
+.theme-fade,
+.theme-fade *,
+.theme-fade *::before,
+.theme-fade *::after {
+  transition:
+    background-color 500ms var(--ease-out),
+    color 500ms var(--ease-out),
+    border-color 500ms var(--ease-out),
+    fill 500ms var(--ease-out),
+    stroke 500ms var(--ease-out),
+    box-shadow 500ms var(--ease-out) !important;
+}
+
+/* movimento reduzido = menos e mais suave, nao zero: fica so a opacidade; some deslocamento e escala */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-delay: 0s !important;
+  }
+
+  .confirm-dialog[open], .confirm-dialog[data-closing] {
+    animation: fade 200ms ease both !important;
+  }
+
+  .animate-rise, .animate-enter, .animate-pop {
+    animation: fade 200ms ease both !important;
+  }
+
+  .animate-grow {
+    animation: none !important;
+  }
+}
+
+/*
+ * Autofill do Chrome: a regra interna dele usa "color: ... !important" e "background-color: ... !important",
+ * que vencem qualquer estilo nosso. Dois contornos que ele nao sobrescreve:
+ * - o fundo azul nunca chega a ser aplicado, porque a transicao dele dura "para sempre";
+ * - o texto nativo do campo de senha e escondido por -webkit-text-fill-color (nao pela cor), para a
+ *   camada animada nao ficar sobreposta a um segundo texto.
+ */
+input:-webkit-autofill,
+input:autofill {
+  transition:
+    background-color 600000s 0s,
+    border-color 200ms,
+    box-shadow 200ms;
+}
+
+.pw-overlay-on {
+  -webkit-text-fill-color: transparent !important;
+}
