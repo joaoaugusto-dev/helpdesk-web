@@ -1,3 +1,0 @@
-# segredo (jwtSecret) e dados locais: nao vao para o Git; use os arquivos *.example.* como modelo
-config.yaml
-database.json

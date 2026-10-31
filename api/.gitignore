@@ -1,0 +1,5 @@
+node_modules/
+.env
+
+# Banco local gerado na primeira execucao (contem hashes de senha)
+data/
